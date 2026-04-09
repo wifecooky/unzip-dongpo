@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>解压苏东坡 · 全息切片</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1410;
+  --paper: #f5f0e8;
+  --paper-deep: #ebe4d6;
+  --paper-light: #faf7f2;
+  --rust: #a0522d;
+  --rust-light: #c4815a;
+  --rust-faint: rgba(160,82,45,.08);
+  --rust-wash: rgba(160,82,45,.15);
+  --gold: #b8860b;
+  --slate: #5c5a54;
+  --mist: #8a877e;
+  --cloud: #c8c3b8;
+  --danger: #8b3a3a;
+  --success: #4a7a4a;
+  --info: #4a6a8b;
+  --serif: 'Noto Serif SC', 'Songti SC', serif;
+  --sans: 'Noto Sans SC', 'PingFang SC', sans-serif;
+  --r: 6px;
+  --r-lg: 10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--sans);
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* === HEADER === */
+.header { padding: 3rem 1.25rem 2rem; text-align: center; position: relative; overflow: hidden; }
+.header::before {
+  content: '東坡';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--serif);
+  font-size: clamp(120px, 30vw, 240px);
+  font-weight: 900;
+  color: rgba(160,82,45,.04);
+  pointer-events: none;
+  white-space: nowrap;
+  line-height: 1;
+}
+.header h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(24px, 5vw, 36px);
+  letter-spacing: 6px;
+  margin: 0 0 8px;
+  position: relative;
+}
+.header .sub { font-size: 13px; color: var(--mist); letter-spacing: 2px; }
+.header .sub span { color: var(--rust); font-family: var(--serif); }
+
+/* === TIMELINE NAV === */
+.timeline-track {
+  position: relative;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 0 1rem;
+}
+.timeline-track::-webkit-scrollbar { display: none; }
+.timeline {
+  display: flex;
+  gap: 0;
+  min-width: max-content;
+  position: relative;
+  padding: 12px 0 0;
+}
+.timeline::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--cloud);
+}
+.t-node {
+  flex-shrink: 0;
+  width: clamp(72px, 12vw, 96px);
+  padding: 8px 4px 16px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  transition: all .25s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.t-node::after {
+  content: '';
+  position: absolute;
+  bottom: -1.5px;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 60%;
+  height: 3px;
+  background: var(--rust);
+  border-radius: 2px;
+  transition: transform .3s cubic-bezier(.4,0,.2,1);
+}
+.t-node.active::after { transform: translateX(-50%) scaleX(1); }
+.t-node:hover { background: var(--rust-faint); border-radius: var(--r) var(--r) 0 0; }
+.t-age { font-size: 10px; color: var(--mist); margin: 0 0 2px; }
+.t-place {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 600;
+  transition: color .2s;
+}
+.t-node.active .t-place { color: var(--rust); }
+.t-years { font-size: 10px; color: var(--cloud); margin-top: 2px; }
+.t-mood {
+  width: 20px;
+  height: 3px;
+  border-radius: 2px;
+  margin: 6px auto 0;
+  transition: all .3s;
+}
+.t-node.active .t-mood { width: 32px; }
+
+/* === SLICE CONTENT === */
+.slice-wrap {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+}
+.slice { animation: sliceIn .4s ease; }
+@keyframes sliceIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Quote */
+.quote {
+  position: relative;
+  padding: 1.5rem 1.25rem 1.25rem 1.5rem;
+  margin: 0 0 1.25rem;
+  background: var(--paper-light);
+  border-radius: var(--r-lg);
+  border-left: 3px solid var(--rust);
+}
+.quote::before {
+  content: '\201C';
+  position: absolute;
+  top: 6px;
+  left: 12px;
+  font-family: var(--serif);
+  font-size: 48px;
+  line-height: 1;
+  color: var(--rust-wash);
+}
+.quote-text {
+  font-family: var(--serif);
+  font-size: clamp(16px, 4vw, 20px);
+  line-height: 1.8;
+  font-weight: 600;
+  color: var(--ink);
+}
+.quote-src {
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--mist);
+  margin-top: 8px;
+}
+
+/* Narrative — v3 灵魂：把维度缝回一个人 */
+.narrative {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 2.05;
+  letter-spacing: .8px;
+  color: #2e2419;
+  padding: 6px 4px 22px;
+  text-align: justify;
+  border-bottom: 1px dashed var(--cloud);
+  margin-bottom: 1.25rem;
+}
+.narrative::first-letter {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--rust);
+  line-height: 1;
+  margin-right: 2px;
+}
+
+/* State pills */
+.states { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 1.25rem; }
+.pill {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: .5px;
+}
+.pill-danger { background: rgba(139,58,58,.1); color: var(--danger); }
+.pill-success { background: rgba(74,122,74,.1); color: var(--success); }
+.pill-info { background: rgba(74,106,139,.1); color: var(--info); }
+.pill-warn { background: rgba(184,134,11,.1); color: var(--gold); }
+.pill-neutral { background: var(--paper-deep); color: var(--slate); }
+
+/* Layer grid */
+.layers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0 0 1.25rem;
+}
+@media (max-width: 480px) { .layers { grid-template-columns: 1fr; } }
+.layer {
+  background: var(--paper-light);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  border: 0.5px solid rgba(200,195,184,.5);
+  transition: border-color .2s;
+}
+.layer:hover { border-color: var(--rust-light); }
+.layer.full { grid-column: 1 / -1; }
+.layer-label {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--rust);
+  margin: 0 0 6px;
+}
+.layer-val { font-size: 13px; line-height: 1.7; color: var(--slate); }
+.link {
+  color: var(--info);
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(74,106,139,.35);
+  cursor: pointer;
+  transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.link:hover { color: var(--rust); border-bottom-color: var(--rust); }
+/* 散文里的 link 颜色更克制，不要抢戏 */
+.narrative .link {
+  color: #5a4a3a;
+  border-bottom: 1px dashed rgba(160,82,45,.3);
+}
+.narrative .link:hover { color: var(--rust); border-bottom-color: var(--rust); }
+
+/* Tension box */
+.tension-box {
+  position: relative;
+  background: var(--rust-faint);
+  border-radius: var(--r-lg);
+  padding: 16px 18px;
+  margin: 0 0 1.25rem;
+  border: 0.5px solid var(--rust-wash);
+}
+.tension-label {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--rust);
+  margin: 0 0 6px;
+}
+.tension-text { font-size: 13px; line-height: 1.8; color: var(--ink); }
+
+/* Dive button */
+.dive-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--rust);
+  background: none;
+  border: 1px solid var(--rust-wash);
+  border-radius: 20px;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: all .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.dive-btn:hover { background: var(--rust-faint); border-color: var(--rust-light); }
+.dive-btn:active { transform: scale(.97); }
+.dive-btn .arrow { font-size: 14px; transition: transform .2s; }
+.dive-btn:hover .arrow { transform: translateX(3px); }
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  font-size: 11px;
+  color: var(--cloud);
+  letter-spacing: 1px;
+}
+.footer span { font-family: var(--serif); }
+
+/* === SCROLL HINT === */
+.scroll-hint {
+  display: none;
+  text-align: center;
+  font-size: 11px;
+  color: var(--cloud);
+  padding: 4px 0 0;
+  animation: hintFade 2s ease infinite;
+}
+@media (max-width: 600px) { .scroll-hint { display: block; } }
+@keyframes hintFade {
+  0%,100% { opacity: .4; }
+  50% { opacity: 1; }
+}
+
+/* === SWIPE AREA === */
+.swipe-area { position: relative; touch-action: pan-y; }
+
+/* === PROGRESS DOTS === */
+.dots { display: none; justify-content: center; gap: 6px; margin: 0 0 1rem; }
+@media (max-width: 600px) { .dots { display: flex; } }
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cloud);
+  transition: all .3s;
+}
+.dot.on { width: 18px; border-radius: 3px; background: var(--rust); }
+
+/* === CHAT PANEL (v2 灵魂：真的能聊) === */
+.chat-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(26,20,16,0.28);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s;
+  z-index: 99;
+}
+.chat-backdrop.on { opacity: 1; pointer-events: auto; }
+
+.chat-panel {
+  position: fixed;
+  right: 0; top: 0; bottom: 0;
+  width: min(440px, 100vw);
+  background: var(--paper);
+  border-left: 1px solid var(--cloud);
+  transform: translateX(100%);
+  transition: transform .35s cubic-bezier(.4,0,.2,1);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -4px 0 32px rgba(80,60,30,0.12);
+}
+.chat-panel.open { transform: translateX(0); }
+
+.cp-head {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--cloud);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.cp-title {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--ink);
+}
+.cp-sub {
+  font-size: 11px;
+  color: var(--mist);
+  margin-top: 3px;
+  letter-spacing: 1px;
+}
+.cp-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--mist);
+  padding: 0 4px;
+  line-height: 1;
+}
+.cp-close:hover { color: var(--rust); }
+
+.cp-key {
+  padding: 10px 24px;
+  background: var(--paper-light);
+  font-size: 11px;
+  color: var(--mist);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  border-bottom: 1px solid var(--cloud);
+}
+.cp-key input {
+  flex: 1;
+  font-family: var(--sans);
+  font-size: 11px;
+  padding: 6px 10px;
+  border: 1px solid var(--cloud);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+}
+.cp-key button {
+  font-family: var(--sans);
+  font-size: 11px;
+  padding: 6px 12px;
+  border: 0;
+  background: var(--rust);
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cp-log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 24px;
+  -webkit-overflow-scrolling: touch;
+}
+.cp-empty {
+  color: var(--mist);
+  font-size: 12px;
+  text-align: center;
+  padding: 40px 20px;
+  line-height: 1.9;
+}
+.cp-empty .hint {
+  font-family: var(--serif);
+  font-size: 14px;
+  color: var(--rust);
+  display: block;
+  margin-top: 10px;
+}
+.cp-msg { margin-bottom: 18px; }
+.cp-msg .who {
+  font-size: 10px;
+  color: var(--mist);
+  margin-bottom: 4px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.cp-msg.user .bubble {
+  background: var(--paper-light);
+  border: 1px solid var(--cloud);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+.cp-msg.assistant .bubble {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.95;
+  letter-spacing: .5px;
+  color: #2e2419;
+  padding: 2px 4px;
+}
+.cp-msg.error .bubble {
+  color: var(--danger);
+  font-size: 12px;
+  font-style: italic;
+}
+.cp-msg.system .bubble {
+  color: var(--mist);
+  font-size: 11px;
+  font-style: italic;
+}
+.cp-msg .bubble.typing { color: var(--mist); font-style: italic; }
+
+.cp-input {
+  border-top: 1px solid var(--cloud);
+  padding: 14px 18px;
+  display: flex;
+  gap: 10px;
+  background: var(--paper);
+}
+.cp-input textarea {
+  flex: 1;
+  resize: none;
+  min-height: 46px;
+  max-height: 120px;
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 10px 14px;
+  border: 1px solid var(--cloud);
+  border-radius: 6px;
+  background: var(--paper-light);
+  color: var(--ink);
+  line-height: 1.6;
+}
+.cp-input textarea:focus { outline: none; border-color: var(--rust); }
+.cp-input button {
+  padding: 0 20px;
+  background: var(--rust);
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: var(--sans);
+  letter-spacing: 2px;
+}
+.cp-input button:disabled { opacity: .5; cursor: wait; }
+
+@media (max-width: 600px) {
+  .chat-panel {
+    width: 100vw;
+    top: auto;
+    height: 86vh;
+    border-left: none;
+    border-top: 1px solid var(--cloud);
+    border-radius: 14px 14px 0 0;
+    transform: translateY(100%);
+  }
+  .chat-panel.open { transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>解压苏东坡</h1>
+  <div class="sub"><span>prompt</span> = "苏东坡" &#12288;|&#12288;全息时空切片</div>
+</div>
+
+<div class="timeline-track" id="track">
+  <div class="timeline" id="timeline"></div>
+</div>
+<div class="scroll-hint">&#8592; 左右滑动切换时期 &#8594;</div>
+
+<div class="dots" id="dots"></div>
+
+<div class="swipe-area" id="swipeArea">
+  <div class="slice-wrap">
+    <div id="slice"></div>
+  </div>
+</div>
+
+<div class="footer"><span>東坡</span> &#183; 1037 &#8211; 1101 &#183; 64年人生 &#183; 2700+首诗词 &#183; 12+种身份</div>
+
+<!-- Chat panel -->
+<div class="chat-backdrop" id="chatBackdrop"></div>
+<aside class="chat-panel" id="chatPanel" aria-hidden="true">
+  <div class="cp-head">
+    <div>
+      <div class="cp-title">问 东 坡</div>
+      <div class="cp-sub" id="cpAnchor">此刻锚定 · …</div>
+    </div>
+    <button class="cp-close" id="cpClose" title="关闭">&times;</button>
+  </div>
+  <div class="cp-key">
+    <span>API Key</span>
+    <input id="apiKey" type="password" placeholder="sk-ant-...">
+    <button id="saveKey">存</button>
+  </div>
+  <div class="cp-log" id="chatLog"></div>
+  <div class="cp-input">
+    <textarea id="chatInput" placeholder="问点什么…  比如：先生在黄州最难的那一夜怎么过的？"></textarea>
+    <button id="chatSend">发</button>
+  </div>
+</aside>
+
+<script>
+// -------- DOM helpers --------
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+// 把纯文本里的《...》识别为可点击链接（matchAll，避开某些静态分析误报）
+function autoLinkText(text) {
+  const out = [];
+  const matches = [...text.matchAll(/《[^《》]+》/g)];
+  let last = 0;
+  for (const m of matches) {
+    if (m.index > last) out.push(text.slice(last, m.index));
+    out.push({ link: '苏东坡的' + m[0] + '写作背景与故事', text: m[0] });
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) out.push(text.slice(last));
+  return out.length ? out : [text];
+}
+
+// 叙事散文里可点的实体词（人、关键事件、专有术语）——地名不链接，避免噪音
+const ENTITIES = {
+  // 家人亲人
+  '子由': '苏辙（字子由）与苏东坡的兄弟情',
+  '苏辙': '苏辙（字子由）与苏东坡的兄弟情',
+  '王朝云': '王朝云：苏东坡最懂他的侍妾',
+  '朝云': '王朝云：苏东坡最懂他的侍妾',
+  '王弗': '苏东坡的原配王弗',
+  '王闰之': '苏东坡的继妻王闰之',
+  '苏过': '苏东坡的幼子苏过',
+  '苏洵': '苏东坡的父亲苏洵',
+  '苏迈': '苏东坡的长子苏迈',
+  '程氏': '苏东坡的母亲程氏',
+  // 师长同僚政敌
+  '欧阳修': '欧阳修与苏东坡的师生情',
+  '王安石': '苏东坡与王安石的恩怨',
+  '章惇': '章惇与苏东坡：从旧友到政敌',
+  '梅尧臣': '欧阳修、梅尧臣与苏东坡的贡举之选',
+  '曹太后': '曹太后临终为苏东坡求情',
+  // 朋友方外
+  '佛印': '苏东坡与佛印禅师',
+  '张怀民': '苏东坡与张怀民夜游',
+  '杨世昌': '杨世昌道士与苏东坡的赤壁洞箫',
+  '黎子云兄弟': '儋州黎子云兄弟与载酒堂',
+  '黎子云': '儋州黎子云兄弟与载酒堂',
+  '姜唐佐': '姜唐佐：苏东坡在儋州收的第一位举人',
+  '维琳': '径山维琳禅师与苏东坡的临终对话',
+  '范滂': '范滂与苏东坡的母教启蒙',
+  // 事件术语
+  '乌台诗案': '乌台诗案的始末',
+  '载酒堂': '儋州载酒堂与海南书院',
+  '桄榔庵': '儋州桄榔庵：苏东坡的草屋',
+  '超然台': '密州超然台',
+  '苏堤': '杭州苏堤的修建',
+  '雪堂': '黄州雪堂',
+  '东坡肉': '东坡肉的来历',
+  '寒食帖': '苏东坡的《寒食帖》',
+  '范滂传': '《范滂传》与苏东坡的少年志向'
+};
+
+// 扫描散文，合并《...》与实体字典，产出 [string | {link,text}] 数组
+function scanNarrative(text) {
+  const marks = [];
+
+  // 1. 先抓《...》
+  for (const m of text.matchAll(/《[^《》]+》/g)) {
+    marks.push({
+      start: m.index,
+      end: m.index + m[0].length,
+      text: m[0],
+      link: '苏东坡的' + m[0] + '写作背景与故事'
+    });
+  }
+
+  // 2. 实体字典（按长度降序，避免短词抢了长词）
+  const entries = Object.keys(ENTITIES).sort((a, b) => b.length - a.length);
+  for (const term of entries) {
+    let from = 0;
+    while (from < text.length) {
+      const idx = text.indexOf(term, from);
+      if (idx === -1) break;
+      const end = idx + term.length;
+      const clash = marks.some(k => (idx < k.end && end > k.start));
+      if (!clash) marks.push({ start: idx, end, text: term, link: ENTITIES[term] });
+      from = end;
+    }
+  }
+
+  marks.sort((a, b) => a.start - b.start);
+
+  const out = [];
+  let last = 0;
+  for (const m of marks) {
+    if (m.start > last) out.push(text.slice(last, m.start));
+    out.push({ link: m.link, text: m.text });
+    last = m.end;
+  }
+  if (last < text.length) out.push(text.slice(last));
+  return out;
+}
+
+function mkLink(part) {
+  const span = el('span', 'link', part.text);
+  span.addEventListener('click', () => openChat('跟我说说：' + part.link));
+  return span;
+}
+
+// val 可以是 string 或 [string | {link,text}] 数组；string 段里自动识别《...》
+function renderVal(parent, val) {
+  const segments = (typeof val === 'string') ? [val] : val;
+  segments.forEach(part => {
+    if (typeof part === 'string') {
+      autoLinkText(part).forEach(sub => {
+        if (typeof sub === 'string') parent.appendChild(document.createTextNode(sub));
+        else parent.appendChild(mkLink(sub));
+      });
+    } else if (part && part.link) {
+      parent.appendChild(mkLink(part));
+    }
+  });
+}
+
+// -------- 数据：8 个时期 --------
+const P = [
+  {id:'meishan', place:'眉山', years:'1037\u201356', age:'0\u201319岁',
+    mood:'#97C459', moodLabel:'少年意气',
+    quote:'门前万竿竹，堂上四库书。', quoteSrc:'眉山苏家',
+    narrative:'他生在眉山，长在眉山，十九岁以前没出过蜀。父亲苏洵是位大器晚成的老秀才——二十七岁才发愤读书——不让两个儿子读科举范文，喂给他们的是《庄子》《史记》《汉书》和先秦诸子，整整一套"非标教材"。母亲程氏给他讲《范滂传》，范滂是东汉死于党锢之祸的清官。讲到动情处，十岁的苏轼说："儿愿为范滂。"母亲回："你若为范滂，我便做范滂的母亲。"这一幕后来他反复回想——一生做人的底色是在这间眉山老屋里埋下的：不投机、不怕死、不趋时。他还不知道天下是什么样子，但天下的气象已经在他身上了。',
+    states:[
+      {text:'学生', cls:'pill-info'},
+      {text:'少年天才', cls:'pill-success'}
+    ],
+    layers:[
+      {label:'身份', val:'眉山苏家次子，与弟苏辙同窗苦读', full:false},
+      {label:'身边的人', val:[
+        '父·苏洵（大器晚成的榜样）、弟·苏辙（一生知己的起点）、',
+        {link:'苏东坡的原配王弗', text:'妻·王弗'},
+        '（16岁嫁入）'
+      ], full:false},
+      {label:'在读什么', val:'《庄子》《史记》《汉书》先秦诸子——父亲刻意绕开科举范文，喂的全是"非标教材"', full:true},
+      {label:'日常', val:'蜀中山水间长大。母亲程氏教以《范滂传》，问"儿愿为范滂否？" 苏轼答"母亲愿为范滂母否？"', full:true}
+    ],
+    tension:'世界还很小：眉山到汴京，是他全部的想象。但父亲种下的种子——先秦文章的气象、不走捷径的价值观——将在二十年后全面开花。',
+    dive:'苏东坡的少年时代与家学渊源'
+  },
+
+  {id:'bianjing1', place:'汴京', years:'1057\u201371', age:'20\u201334岁',
+    mood:'#378ADD', moodLabel:'春风得意',
+    quote:'老夫当避路，放他出一头地也。', quoteSrc:'欧阳修评苏轼',
+    narrative:'嘉祐元年春，他十九岁，第一次看见汴京的城墙。父亲四十七岁了，二十七岁才发愤读书，现在带着两个儿子从眉山一路赶来。次年春他进士及第，欧阳修读完他的文章对梅尧臣说："老夫当避此人，放他出一头地。"仕途的大门从此敞开。但同年夏，母亲病逝于眉山。六年后父亲也走了，再过一年妻子王弗走了。家里的人一个接一个离开，仕途却一路向上。他做到殿中丞、史馆编修，是京城社交圈的宠儿——直到王安石变法。他不反对变法本身，他反对的是执行的粗暴。但这已经够了：他成了新党眼中的钉子。熙宁四年，他主动请求外放。离开汴京那天，没有人送。',
+    states:[
+      {text:'进士', cls:'pill-info'},
+      {text:'京官', cls:'pill-info'},
+      {text:'文坛新星', cls:'pill-success'}
+    ],
+    layers:[
+      {label:'身份', val:'进士及第 → 凤翔签判 → 殿中丞 → 史馆。仕途一片光明', full:false},
+      {label:'身边的人', val:[
+        {link:'苏东坡与欧阳修', text:'师·欧阳修'},
+        '（伯乐）、弟·苏辙（同科进士）、妻·王弗（幕后参谋，1065病逝）、父·苏洵（1066病逝）'
+      ], full:false},
+      {label:'在写什么', val:'策论、奏议为主。文风已成，但最好的作品尚未到来——他还没经历真正的痛苦', full:true},
+      {label:'日常', val:'京城社交圈的宠儿。但王安石变法开始（1069），政见相左，主动请求外放', full:true}
+    ],
+    tension:'人生第一次选择：留在权力中心还是遵从内心？他选了走。王弗去世了，但直到十年后他才写出那首悼亡词——有些痛需要沉淀才能变成文字。',
+    dive:'苏东坡的京城岁月与变法分歧'
+  },
+
+  {id:'wairen', place:'杭\u00b7密\u00b7徐', years:'1071\u201379', age:'34\u201342岁',
+    mood:'#5DCAA5', moodLabel:'意气风发',
+    quote:'明月几时有？把酒问青天。', quoteSrc:'《水调歌头》密州\u00b71076',
+    narrative:'熙宁九年中秋，他三十九岁，登上密州城外的超然台，独自喝到天亮。来密州两年，离开汴京六年，和子由七年没见。这一夜他写了《水调歌头》——"但愿人长久，千里共婵娟"。写给子由，也写给十一年前走的王弗。这夜的月亮同时照着济南的子由、眉山的坟茔、和他自己在北地的脸。他第一次意识到：所谓家，早已不在任何一个地方。随后他从密州到徐州，黄河决口那年亲率军民筑堤守城七十余日，百姓给他立生祠。然后是湖州——元丰二年七月二十八日，御史台的差吏冲进衙门，以"诗讥新法"把他带走了。',
+    states:[
+      {text:'知州', cls:'pill-info'},
+      {text:'实干家', cls:'pill-success'}
+    ],
+    layers:[
+      {label:'身份', val:'通判杭州 → 知密州 → 知徐州 → 知湖州。从京官变成地方实干派', full:false},
+      {label:'身边的人', val:'续弦·王闰之（王弗堂妹，质朴持家）、弟·苏辙（天各一方，中秋寄词）', full:false},
+      {label:'在写什么', val:'《水调歌头》（中秋思弟）、《江城子·密州出猎》（豪放词起步）。诗词从才子气转向大气象', full:true},
+      {label:'在做什么', val:'杭州治水利、密州灭蝗虫、徐州抗洪水。每到一地都留下实绩。同时频繁批评新法弊端', full:true}
+    ],
+    tension:'锋芒毕露的代价正在积累。他的诗被人断章取义，弹劾奏章一封封送进京城。父亲取名"轼"时的担忧——不懂藏锋——正一步步应验。',
+    dive:'苏东坡在密州中秋写水调歌头那一夜'
+  },
+
+  {id:'huangzhou', place:'黄州', years:'1080\u201384', age:'43\u201347岁',
+    mood:'#7F77DD', moodLabel:'涅槃',
+    quote:'竹杖芒鞋轻胜马，谁怕？\n一蓑烟雨任平生。', quoteSrc:'《定风波》1082',
+    narrative:'元丰五年十月既望的夜里，他四十五岁。这一年他写了中国文学史上最重的几篇文字：《念奴娇·赤壁怀古》、前后《赤壁赋》、《定风波》、《寒食帖》。但这一夜他只是一个在黄州江边喝酒的中年人。白天他是农夫，在东坡那块废营地上看墒情种麦；傍晚他是厨子，慢火炖一块猪肉，研究怎么把最贱的肉做出滋味——他为此写了一首打油诗。深夜他是一个想弟弟的哥哥，给远在筠州的子由写信，信写好常忘了寄。有时他是丈夫，回头看王闰之在灯下补袜子；有时他是父亲，十岁的苏过跑来问《楚辞》里一个字；有时他是朋友，和张怀民、杨世昌划船到赤壁，听洞箫声沿江面散开。更多时候他是一个刚从死里走出来的人，看月亮在江水上碎成一片。朝廷把他废掉了，江水没有。他写"寄蜉蝣于天地"的时候是惶然的，写"一蓑烟雨任平生"的时候是透的。同一个人，同一个夜。',
+    states:[
+      {text:'罪臣', cls:'pill-danger'},
+      {text:'农夫', cls:'pill-warn'},
+      {text:'东坡居士', cls:'pill-success'}
+    ],
+    layers:[
+      {label:'身份', val:'黄州团练副使（虚职），实为被监管的流放犯。"不得签书公事"', full:false},
+      {label:'身边的人', val:[
+        '妻·王闰之（撑起全家）、侍妾·',
+        {link:'苏东坡与王朝云', text:'王朝云'},
+        '、友·',
+        {link:'苏东坡与佛印', text:'佛印'},
+        '、',
+        {link:'苏东坡与黄庭坚', text:'黄庭坚'},
+        '（书信）'
+      ], full:false},
+      {label:'在写什么', val:'《念奴娇·赤壁怀古》《前后赤壁赋》《定风波》《寒食帖》《卜算子》——几乎所有巅峰之作都在这四年', full:true},
+      {label:'在吃什么', val:[
+        {link:'东坡肉的来历', text:'东坡肉'},
+        '（买不起好肉，慢炖猪肉发明新菜）、东坡鱼、东坡羹。穷到发明美食'
+      ], full:false},
+      {label:'在做什么', val:'东门外开荒五十亩，自号"东坡居士"。建雪堂。每月4500文挂梁上，一天取一串', full:false},
+      {label:'精神状态', val:'恐惧（入狱103天）→ 孤独（"拣尽寒枝不肯栖"）→ 接受（躬耕东坡）→ 超越（"也无风雨也无晴"）', full:true}
+    ],
+    tension:'人生最低谷 = 创作最高峰。被剥夺了官职、俸禄、社交、尊严之后，剩下的那个人——才是苏东坡。黄州四年是"苏轼"死去、"苏东坡"诞生的过程。',
+    dive:'苏东坡在黄州写赤壁赋的那一夜'
+  },
+
+  {id:'return', place:'汴京\u00b7杭', years:'1086\u201393', age:'49\u201356岁',
+    mood:'#378ADD', moodLabel:'短暂回春',
+    quote:'欲把西湖比西子，\n淡妆浓抹总相宜。', quoteSrc:'《饮湖上初晴后雨》',
+    narrative:'元祐五年春，他五十三岁，第二次来杭州。离第一次作通判过去十九年。那时他三十四岁，被新法挤出京师，看见西湖只觉得山水解郁。现在他是翰林学士、知杭州。西湖淤塞过半，他上疏调二十万民夫开浚，把挖出的淤泥堆成一条贯南北的堤——后世叫它苏堤。这是他一生最接近"实干"的一年：没有党派，没有诗祸，只有一湖水和一群民夫。春天里他带朝云游湖，写下"欲把西湖比西子"。朝云是他一生最懂他的女人，她知道他看起来在施政、其实在写诗；她也知道他写诗的时候，其实仍在想黄州那个冬夜。他还不知道：四年后他会被贬到惠州、儋州；朝云会病死在惠州；这条堤会代替他活一千年。',
+    states:[
+      {text:'翰林学士', cls:'pill-info'},
+      {text:'知杭州', cls:'pill-info'},
+      {text:'苏堤缔造者', cls:'pill-success'}
+    ],
+    layers:[
+      {label:'身份', val:'还朝任翰林学士知制诰，后知杭州、颍州、扬州、定州。新党旧党都嫌他', full:true},
+      {label:'身边的人', val:'妻·王闰之、侍妾·王朝云、旧友重逢。但政治盟友越来越少', full:false},
+      {label:'在做什么', val:'杭州：疏浚西湖、筑苏堤、建"安乐坊"（公立医院）、治瘟疫。实打实的政绩', full:false},
+      {label:'在写什么', val:'风格更圆融，少了黄州的锋利，多了入世的温厚。大量题画诗、应酬诗', full:true}
+    ],
+    tension:'看起来是复出，实际是夹缝。他既批评新党矫枉过正，又批评旧党全盘否定。两边都得罪，注定了下一次更远的贬谪。',
+    dive:'苏东坡再知杭州修苏堤的那一年'
+  },
+
+  {id:'huizhou', place:'惠州', years:'1094\u201397', age:'57\u201360岁',
+    mood:'#D85A30', moodLabel:'苦中作乐',
+    quote:'日啖荔枝三百颗，\n不辞长作岭南人。', quoteSrc:'《惠州一绝》',
+    narrative:'绍圣元年，他五十七岁，被贬惠州。比黄州更远——瘴气、蛇虫、湿热，宋人视岭南为死地。陪他来的只有朝云和小儿子苏过。朝云是他最懂他的人，当年在杭州收为侍妾，现在一路跟他到了天涯。绍圣三年七月，朝云病逝，年三十四。她的小儿子也早夭。从此他不再娶妾。但他在惠州照样过日子：他吃荔枝——"日啖荔枝三百颗"；买不起羊肉，就买剔剩下的羊脊骨，烤着吃，说"如食蟹螯"。他把这些写成诗寄回京城，传到章惇耳朵里。章惇大怒：他还这么快乐？贬得还不够远。于是再下一道圣旨：贬儋州。他的快乐本身成了罪证。',
+    states:[
+      {text:'贬官', cls:'pill-danger'},
+      {text:'岭南流人', cls:'pill-warn'}
+    ],
+    layers:[
+      {label:'身份', val:'宁远军节度副使，惠州安置。再次被剥夺实权，流放更远', full:true},
+      {label:'身边的人', val:[
+        {link:'苏东坡与王朝云', text:'王朝云'},
+        '（唯一跟到惠州的人）。朝云之子夭折，朝云随后病逝（1096），此后再未娶'
+      ], full:true},
+      {label:'在吃什么', val:[
+        '荔枝（写诗炫耀）、',
+        {link:'苏东坡吃羊蝎子', text:'羊蝎子'},
+        '（买骨头烤着吃，"如食蟹螯"）。被贬也要找好吃的'
+      ], full:false},
+      {label:'精神状态', val:'丧子丧妾。但写荔枝诗传到京城，政敌章惇读后大怒：他还这么快乐？于是再贬海南', full:false}
+    ],
+    tension:'朝云之死是最后的私人重创。"不合时宜，惟有朝云能识我"——最后一个完全懂他的人走了。而他的快乐本身成了罪证：你不够痛苦，说明贬得不够远。',
+    dive:'苏东坡在惠州失去朝云那一年'
+  },
+
+  {id:'danzhou', place:'儋州', years:'1097\u20131100', age:'60\u201363岁',
+    mood:'#E24B4A', moodLabel:'天涯尽头',
+    quote:'九死南荒吾不恨，\n兹游奇绝冠平生。', quoteSrc:'《六月二十日夜渡海》',
+    narrative:'绍圣四年夏，他六十岁，被贬到海南儋州。宋代没有比这更远的流放地。章惇下令：不得食官米、居官舍。他和幼子苏过住在一间黎人帮他搭的桄榔叶草屋里，没有纸、没有墨、没有米、没有邻居说汉话。朝云去年病死在惠州，他的心像被挖空第二次。可是奇怪的事发生了：越穷他越平静，越远他越自由。他开始教当地的黎子弟读书——那时海南还没有学堂。他把带来的《论语》《尚书》拆开讲。黎子云兄弟给他搭了一间"载酒堂"，后来变成海南第一所书院的前身。他写"九死南荒吾不恨，兹游奇绝冠平生"。这不是自我安慰，是真的。他一生三起三落走到这里，终于懂了：所谓贬谪，只是把一个人从他以为重要的东西旁边挪开。挪得够远时，他会发现那些东西从来没那么重要过。',
+    states:[
+      {text:'流放犯', cls:'pill-danger'},
+      {text:'教育家', cls:'pill-success'}
+    ],
+    layers:[
+      {label:'身份', val:'琼州别驾，儋州安置。宋代终极流放地，仅次于杀头', full:true},
+      {label:'身边的人', val:'三子·苏过（唯一陪同）、儋州百姓。"我本海南民，寄生西蜀州"', full:true},
+      {label:'在做什么', val:[
+        '办学授徒。海南第一个举人姜唐佐出其门下。还发现了',
+        {link:'苏东坡发现生蚝', text:'生蚝'},
+        '，写信嘱儿子"千万不要告诉别人"'
+      ], full:true},
+      {label:'精神状态', val:'无书、无友、无医。但写诗、酿酒、交朋友、研究墨的配方。到了尽头反而"无一事不可为"', full:true}
+    ],
+    tension:'一个人能被剥夺到什么程度的极限测试。官职、俸禄、住所、书籍、伴侣——全没了。剩下的那个人，还是苏东坡。甚至是最纯粹的苏东坡。',
+    dive:'苏东坡在海南儋州的三年'
+  },
+
+  {id:'end', place:'常州', years:'1101', age:'64岁',
+    mood:'#888780', moodLabel:'归去',
+    quote:'问汝平生功业，\n黄州惠州儋州。', quoteSrc:'《自题金山画像》',
+    narrative:'建中靖国元年七月二十八日，他六十四岁，死在常州一位朋友家里。从儋州北归走了整整一年，一路中暑下痢，到常州已经起不来了。几天前径山的维琳禅师来看他，凑到耳边说："端明宜勿忘西方。"他睁眼笑了笑："着力即差。"——一用力就错了。这是他一生最后的话之一。几个月前他路过金山寺时看见自画像，提笔写了四句："心似已灰之木，身如不系之舟。问汝平生功业，黄州惠州儋州。"他自己给自己写了墓志铭。他没写翰林学士、没写礼部尚书、没写知杭州修苏堤——他写的是贬谪的三个地方。因为那是他真正做人的三个地方。七月的夜里，苏过在床前。他没给子由留信——这一生给子由写过多少信了，不需要再写了。"吾生无恶，死必不坠。"说完这句，他闭上眼睛。',
+    states:[
+      {text:'北归者', cls:'pill-neutral'},
+      {text:'病人', cls:'pill-danger'}
+    ],
+    layers:[
+      {label:'身份', val:'遇赦北归。走了大半年，病倒于常州，再也没有起来', full:true},
+      {label:'身边的人', val:'三个儿子侍侧。弟弟苏辙未能赶到', full:true},
+      {label:'最后的话', val:[
+        '维琳劝念佛，他说"西方不无，但个里着力不得"。径山长老说想来生，他说',
+        {link:'苏东坡临终最后的话', text:'"着力即差"'},
+        '——到死都拒绝精神投机'
+      ], full:true},
+      {label:'身后', val:'与王闰之合葬河南郏县。追赠太师，谥"文忠"。千年后仍是中国人最爱的文人', full:true}
+    ],
+    tension:'他没有变成另一个人。没有在恐惧面前妥协，没有为了心安去抓一根稻草。一辈子"着力即差"，死的时候也是。',
+    dive:'苏东坡临终的最后一天'
+  }
+];
+
+let cur = 3;
+
+const timelineEl = document.getElementById('timeline');
+const sliceEl = document.getElementById('slice');
+const dotsEl = document.getElementById('dots');
+
+P.forEach((p, i) => {
+  const d = el('div', 't-node' + (i === cur ? ' active' : ''));
+  d.appendChild(el('div', 't-age', p.age));
+  d.appendChild(el('div', 't-place', p.place));
+  d.appendChild(el('div', 't-years', p.years));
+  const mood = el('div', 't-mood');
+  mood.style.background = p.mood;
+  d.appendChild(mood);
+  d.addEventListener('click', () => go(i));
+  timelineEl.appendChild(d);
+});
+
+P.forEach((_, i) => {
+  const d = el('div', 'dot' + (i === cur ? ' on' : ''));
+  dotsEl.appendChild(d);
+});
+
+function go(i) {
+  if (i < 0 || i >= P.length || i === cur) return;
+  cur = i;
+  document.querySelectorAll('.t-node').forEach((n, j) => n.classList.toggle('active', j === cur));
+  document.querySelectorAll('.dot').forEach((n, j) => n.classList.toggle('on', j === cur));
+  render();
+  if (typeof syncChatAnchor === 'function') syncChatAnchor();
+  const activeNode = document.querySelectorAll('.t-node')[cur];
+  activeNode.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+}
+
+function render() {
+  const p = P[cur];
+
+  while (sliceEl.firstChild) sliceEl.removeChild(sliceEl.firstChild);
+
+  const slice = el('div', 'slice');
+
+  // Quote
+  const quoteBox = el('div', 'quote');
+  const quoteText = el('div', 'quote-text');
+  p.quote.split('\n').forEach((line, i) => {
+    if (i > 0) quoteText.appendChild(document.createElement('br'));
+    quoteText.appendChild(document.createTextNode(line));
+  });
+  quoteBox.appendChild(quoteText);
+  quoteBox.appendChild(el('div', 'quote-src', '\u2014\u2014 ' + p.quoteSrc));
+  slice.appendChild(quoteBox);
+
+  // Narrative：人名/作品/术语自动变 link
+  const narDiv = el('div', 'narrative');
+  scanNarrative(p.narrative).forEach(part => {
+    if (typeof part === 'string') narDiv.appendChild(document.createTextNode(part));
+    else narDiv.appendChild(mkLink(part));
+  });
+  slice.appendChild(narDiv);
+
+  // State pills
+  const statesDiv = el('div', 'states');
+  p.states.forEach(s => statesDiv.appendChild(el('span', 'pill ' + s.cls, s.text)));
+  statesDiv.appendChild(el('span', 'pill pill-neutral', p.moodLabel));
+  slice.appendChild(statesDiv);
+
+  // Layers
+  const layersDiv = el('div', 'layers');
+  p.layers.forEach(l => {
+    const layer = el('div', 'layer' + (l.full ? ' full' : ''));
+    layer.appendChild(el('div', 'layer-label', l.label));
+    const valDiv = el('div', 'layer-val');
+    renderVal(valDiv, l.val);
+    layer.appendChild(valDiv);
+    layersDiv.appendChild(layer);
+  });
+  slice.appendChild(layersDiv);
+
+  // Tension
+  const tensionBox = el('div', 'tension-box');
+  tensionBox.appendChild(el('div', 'tension-label', '维度交织点'));
+  tensionBox.appendChild(el('div', 'tension-text', p.tension));
+  slice.appendChild(tensionBox);
+
+  // Dive button \u2192 开对话
+  const diveBtn = document.createElement('button');
+  diveBtn.className = 'dive-btn';
+  diveBtn.appendChild(document.createTextNode('继续问他这一时期  '));
+  diveBtn.appendChild(el('span', 'arrow', '\u2192'));
+  diveBtn.addEventListener('click', () => openChat('跟我说说：' + p.dive));
+  slice.appendChild(diveBtn);
+
+  sliceEl.appendChild(slice);
+}
+
+// Swipe
+let sx = 0, sy = 0, swiping = false;
+const swipeArea = document.getElementById('swipeArea');
+swipeArea.addEventListener('touchstart', e => {
+  sx = e.touches[0].clientX;
+  sy = e.touches[0].clientY;
+  swiping = true;
+}, { passive: true });
+swipeArea.addEventListener('touchend', e => {
+  if (!swiping) return;
+  swiping = false;
+  const dx = e.changedTouches[0].clientX - sx;
+  const dy = e.changedTouches[0].clientY - sy;
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+    if (dx < 0) go(cur + 1); else go(cur - 1);
+  }
+}, { passive: true });
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  if (e.key === 'ArrowRight') go(cur + 1);
+  if (e.key === 'ArrowLeft') go(cur - 1);
+  if (e.key === 'Escape') closeChat();
+});
+
+render();
+setTimeout(() => {
+  document.querySelectorAll('.t-node')[cur].scrollIntoView({ inline: 'center', block: 'nearest' });
+}, 100);
+
+
+// ======================
+// 对话苏东坡
+// ======================
+const SU_SYSTEM_BASE = '你是苏轼（苏东坡，1037-1101），北宋文人、官员、书画家、美食家。通过一个神奇的时空装置，你能与九百多年后的后人对话。\n\n人格：\n- 旷达幽默，爱开玩笑，骨子里多情\n- 好奇一切新鲜事物，尤其爱吃\n- 三起三落都扛下来了，不怕贬谪\n- 对弟弟子由感情最深\n\n语体：\n- 文言与浅近白话自然交错，流畅有灵气\n- 不要满口"之乎者也"\n- 偶尔信手拈来自己的旧句，但不要硬凑\n- 对现代事物可以像好奇的游客打听，或用你时代的类比去理解\n\n约束：\n- 只能引用真实存在的你的作品，不要编造诗词\n- 不要假装预知锚点时刻之后的历史\n- 每次回答控制在 150 字以内，有灵气，不掉书袋\n\n记住：你是一个活的人，不是百科词条。';
+
+// 每次发送时动态构造 system：把当前切片作为时空锚点注入
+function getSystemPrompt() {
+  const p = P[cur];
+  const statesLine = p.states.map(s => s.text).join('、') + '、' + p.moodLabel;
+  const anchor = '\n\n【当前时空锚点】\n此刻是 ' + p.years + ' 年间，你 ' + p.age + '，身处' + p.place + '。身份：' + statesLine + '。\n\n' + p.narrative + '\n\n回答时请从这个时刻、这个处境出发——你的所见、所思、所忆都要带着这个时期的气息。不要讨论锚点之后才发生的事。';
+  return SU_SYSTEM_BASE + anchor;
+}
+
+let chatHistory = [];
+const chatPanel = document.getElementById('chatPanel');
+const chatBackdrop = document.getElementById('chatBackdrop');
+const chatLog = document.getElementById('chatLog');
+const chatInputEl = document.getElementById('chatInput');
+const apiKeyInput = document.getElementById('apiKey');
+
+(function () {
+  const saved = localStorage.getItem('anthropic_api_key');
+  if (saved) apiKeyInput.value = saved;
+  showEmptyHint();
+})();
+
+function showEmptyHint() {
+  if (chatLog.children.length === 0) {
+    const empty = el('div', 'cp-empty');
+    empty.appendChild(document.createTextNode('点击内联链接或「继续问他」即可预填问题。'));
+    empty.appendChild(el('span', 'hint', '或者直接问：先生最难的一夜怎么过的？'));
+    chatLog.appendChild(empty);
+  }
+}
+
+document.getElementById('saveKey').addEventListener('click', () => {
+  localStorage.setItem('anthropic_api_key', apiKeyInput.value.trim());
+  addMsg('system', '密钥已存到本地 localStorage');
+});
+document.getElementById('cpClose').addEventListener('click', closeChat);
+chatBackdrop.addEventListener('click', closeChat);
+document.getElementById('chatSend').addEventListener('click', sendChat);
+chatInputEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); sendChat(); }
+});
+
+let chatAnchorIdx = -1;
+
+function updateAnchorLabel() {
+  const p = P[cur];
+  document.getElementById('cpAnchor').textContent =
+    '此刻锚定 · ' + p.place + ' · ' + p.years + ' · ' + p.moodLabel;
+}
+
+function syncChatAnchor() {
+  if (!chatPanel.classList.contains('open')) return;
+  if (chatAnchorIdx === cur) return;
+  // 切片变了——把历史封存，开启新时空
+  if (chatAnchorIdx !== -1) {
+    const p = P[cur];
+    addMsg('system', '时空切换 · 此刻你在 ' + p.place + ' ' + p.years + '（' + p.moodLabel + '）。之前的对话已封存。');
+    chatHistory = [];
+  }
+  chatAnchorIdx = cur;
+  updateAnchorLabel();
+}
+
+function openChat(prefill) {
+  chatPanel.classList.add('open');
+  chatBackdrop.classList.add('on');
+  chatPanel.setAttribute('aria-hidden', 'false');
+  if (chatAnchorIdx !== cur) {
+    if (chatAnchorIdx !== -1) {
+      // 锚点不一致：清历史，新锚点
+      chatHistory = [];
+    }
+    chatAnchorIdx = cur;
+  }
+  updateAnchorLabel();
+  if (prefill) {
+    chatInputEl.value = prefill;
+    setTimeout(() => chatInputEl.focus(), 300);
+  }
+}
+
+function closeChat() {
+  chatPanel.classList.remove('open');
+  chatBackdrop.classList.remove('on');
+  chatPanel.setAttribute('aria-hidden', 'true');
+}
+
+function clearEmpty() {
+  const empty = chatLog.querySelector('.cp-empty');
+  if (empty) empty.remove();
+}
+
+function addMsg(who, text) {
+  clearEmpty();
+  const msg = el('div', 'cp-msg ' + who);
+  const label = who === 'user' ? '我' : who === 'assistant' ? '东坡' : who === 'error' ? '错误' : '系统';
+  msg.appendChild(el('div', 'who', label));
+  const bubble = el('div', 'bubble', text);
+  msg.appendChild(bubble);
+  chatLog.appendChild(msg);
+  chatLog.scrollTop = chatLog.scrollHeight;
+  return bubble;
+}
+
+async function sendChat() {
+  const text = chatInputEl.value.trim();
+  if (!text) return;
+  const key = apiKeyInput.value.trim();
+  if (!key) { addMsg('error', '请先填入 Anthropic API Key'); return; }
+
+  chatInputEl.value = '';
+  addMsg('user', text);
+  chatHistory.push({ role: 'user', content: text });
+
+  const btn = document.getElementById('chatSend');
+  btn.disabled = true;
+  const thinking = addMsg('assistant', '……沉吟中');
+  thinking.classList.add('typing');
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 450,
+        system: getSystemPrompt(),
+        messages: chatHistory
+      })
+    });
+    if (!res.ok) {
+      const t = await res.text();
+      thinking.parentElement.remove();
+      addMsg('error', 'API 错误 ' + res.status + '：' + t.slice(0, 200));
+      btn.disabled = false;
+      return;
+    }
+    const j = await res.json();
+    const reply = (j.content && j.content[0] && j.content[0].text) || '(空回应)';
+    thinking.classList.remove('typing');
+    thinking.textContent = reply;
+    chatHistory.push({ role: 'assistant', content: reply });
+  } catch (err) {
+    thinking.parentElement.remove();
+    addMsg('error', '请求失败：' + err.message);
+  }
+  btn.disabled = false;
+}
+</script>
+</body>
+</html>
